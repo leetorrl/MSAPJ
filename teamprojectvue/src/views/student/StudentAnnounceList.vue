@@ -64,7 +64,12 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { stgetlectureapi } from '@/api/student';
 import { stfetchannounceForAllapi } from '@/api/student';
-import axios from 'axios';
+import { stfetchannounceForAlldescapi } from '@/api/student';
+import { stfetchannounceByLectureapi } from '@/api/student';
+import { stfetchannounceByLecturedescapi } from '@/api/student';
+import { stfetchannounceapi } from '@/api/student';
+import { stfetchannouncedescapi } from '@/api/student';
+
 import Cookies from 'js-cookie';
 
 const route = useRoute()
@@ -158,8 +163,8 @@ const fetchannounceForAll = async (pageNum = 1) => {
 };
 
 const fetchannounceForAlldesc = async (pageNum = 1) => {
-  try {
-    const response = await axios.get(`http://greencomart.kro.kr:716/announce/searchforalldesc?pageNum=${pageNum - 1}`);
+  try { 
+    const response = await stfetchannounceForAlldescapi(pageNum)
     announcelist.value = response.data.list;
     announcelist.value.sort((a, b) => b.idx - a.idx);
     totalElements.value = response.data.totalElements;
@@ -173,7 +178,7 @@ const fetchannounceForAlldesc = async (pageNum = 1) => {
 // 특정 강의를 선택했을 때의 요청
 const fetchannounceByLecture = async (lectureIdx, pageNum = 1) => {
   try {
-    const response = await axios.get(`http://greencomart.kro.kr:716/announce/lecturesearch/${lectureIdx}?pageNum=${pageNum - 1}`);
+    const response = await stfetchannounceByLectureapi(lectureIdx ,pageNum  )
     announcelist.value = response.data.list;
     announcelist.value.sort((a, b) => b.idx - a.idx);
     totalElements.value = response.data.totalElements;
@@ -186,7 +191,7 @@ const fetchannounceByLecture = async (lectureIdx, pageNum = 1) => {
 
 const fetchannounceByLecturedesc = async (lectureIdx, pageNum = 1) => {
   try {
-    const response = await axios.get(`http://greencomart.kro.kr:716/announce/lecturesearchdesc/${lectureIdx}?pageNum=${pageNum - 1}`);
+    const response = await stfetchannounceByLecturedescapi(lectureIdx, pageNum)
     announcelist.value = response.data.list;
     announcelist.value.sort((a, b) => b.idx - a.idx);
     totalElements.value = response.data.totalElements;
@@ -199,13 +204,7 @@ const fetchannounceByLecturedesc = async (lectureIdx, pageNum = 1) => {
 
 const fetchannounce = async (pageNum = 1) => {
   try {
-    const token = Cookies.get('token')
-    // const token = localStorage.getItem('token');
-    const response = await axios.get(`http://greencomart.kro.kr:716/announce/teacher?pageNum=${pageNum - 1}`,{
-headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
+    const response = await stfetchannounceapi(pageNum)
     announcelist.value = response.data.list;
     announcelist.value.sort((a, b) => b.idx - a.idx);
     totalElements.value = response.data.totalElements;
@@ -219,15 +218,9 @@ headers: {
 
 const fetchannouncedesc = async (pageNum = 1) => {
   try {
-    const token = Cookies.get('token')
-    // const token = localStorage.getItem('token');
-    const response = await axios.get(`http://greencomart.kro.kr:716/announce/teacherdesc?pageNum=${pageNum - 1}`,{
-headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
+    const response = await stfetchannouncedescapi(pageNum)
     announcelist.value = response.data.list;
-    announcelist.value.sort((a, b) => b.idx - a.idx);
+    announcelist.value.sort((a, b) =>   a.idx -b.idx);
     totalElements.value = response.data.totalElements;
     totalPages.value = response.data.totalPages;
     currentPage.value = pageNum;
