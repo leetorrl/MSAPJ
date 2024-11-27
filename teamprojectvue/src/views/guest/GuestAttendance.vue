@@ -61,7 +61,7 @@
                             <template v-for="items in attlist" :key="items.adate">
                                 <div v-if="items.adate == column.format('YYYY-MM-DD')">
                                     <div class="mt-2 text-green-600">
-                                        <button @click="(event) => selectAttFn(event, items)"
+                                        <button @click="(event) => selectAttFn(event, items, date)"
                                             class="w-full font-bold text-white rounded hover:bg-green-700 focus:outline-none focus:shadow-outline"
                                             :class="{
                                                 'bg-green-500': items.approval == null && (items.type === '조퇴' || items.type === '외출' || items.type === '지각'),
@@ -163,8 +163,10 @@
 
 <script setup>
 import { onMounted, ref, watch} from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { gushowuserapi } from '@/api/guestapi';
+import { guattupdateapi } from '@/api/guestapi';
+import { guattdeleteapi } from '@/api/guestapi';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 
@@ -262,7 +264,7 @@ const showuser = async () => {
     }
 
     try {
-        const res = await axios.post('http://greencomart.kro.kr:716:8080/attendance/getuser', data)
+        const res = await gushowuserapi(data)
         attlist.value = res.data;
         useravail.value = true;
         console.log(attlist.value);
@@ -293,7 +295,7 @@ const attupdate = async () => {
     }
 
     try {
-        const res = await axios.post('http://greencomart.kro.kr:716:8080/attendance/attupdate', data)
+        const res = await guattupdateapi(data)
         console.log(res)
         alert(`${(selectDate.value == null) ? attDate.value : selectDate.value}, ${name.value} 학생 ${type.value} 요청 완료!`)
         showuser();
@@ -310,7 +312,7 @@ const attdelete = async () => {
     }
 
     try {
-        const res = await axios.delete(`http://greencomart.kro.kr:716:8080/attendance/attdelete/${selectAtt.value.idx}`)
+       const res = guattdeleteapi(selectAtt.value.idx)
         console.log(res)
         alert(`${selectAtt.value.adate}, ${name.value} 학생 ${type.value} 삭제 요청 완료!`)
         selectAtt.value = null;
@@ -319,7 +321,6 @@ const attdelete = async () => {
         console.log(e)
         alert('에러')
     }
-
 }
 
 
@@ -342,7 +343,7 @@ const selectDateFn = (date, index) => {
     }
 };
 
-const selectAttFn = (event, items) => {
+const selectAttFn = (event, items, date) => {
     // 사용자가 유효하지 않다면 바로 리턴
     if (!useravail.value) return;
     if (dayjs(date).format('YYYY-MM') != dayjs(now.value).format('YYYY-MM')) return;
